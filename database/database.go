@@ -4,33 +4,37 @@ import (
 	"log"
 	"os"
 
+	"github.com/jeffronworks/shop-credit/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-// Create the databse struct
 type Dbinstance struct {
 	Db *gorm.DB
 }
 
-// Instantiate the database
 var Database Dbinstance
 
-// Create the connectDb function
 func ConnectDb() {
+	dsn := "host=192.168.95.41 user=jeffron password=root12 dbname=shopcredit port=5432 sslmode=disable TimeZone=Africa/Lagos"
 
-	dsn := "host=192.168.95.41 user=jeffron password=root12 dbname=GoCrud port=5432 sslmode=disable TimeZone=Africa/Lagos"
-
-	// Connect to database
+	// connect to postges DB
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal("failed to connect to the database! \n", err.Error())
+		log.Fatal("Unable to connect to DB \n", err.Error())
 		os.Exit(2)
 	}
 
-	log.Println("Connected to the database successfully")
+	log.Println("Successfully connected to database")
 
 	db.Logger = logger.Default.LogMode(logger.Info)
+	log.Println("Runing Migration")
+
+	// Add migrations
+
+	db.AutoMigrate(&models.Order{}, &models.Product{}, &models.User{})
+
+	Database = Dbinstance{Db: db}
 }
